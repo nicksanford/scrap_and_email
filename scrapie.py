@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
 import time
+import datetime
 import requests
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
@@ -14,11 +15,15 @@ def get_soup(url):
 def get_page_links(url, soup, words):
     page_links = []
     for link in soup.find_all('a'):
+        #print(link.text)
         for word in words:
             if  word in link.text.lower():
                 link_dic = grab_link(url, link)
-                page_links.append(link_dic)
-                break
+                if link_dic:
+                    page_links.append(link_dic) 
+                    break
+                else:
+                    pass
             else:
                 pass
     return page_links
@@ -26,17 +31,21 @@ def get_page_links(url, soup, words):
 def grab_link(url, link):
     if "reddit" in url:
         parent_links = link.parent.parent.find_all('a', class_="comments")
-        comment = parent_links[0].get('href')
-        content = {"title": link.text, "link": comment, "source": url}
+        if parent_links:
+            comment = parent_links[0].get('href')
+            content = {"title": link.text.encode('ascii', 'ignore'), "link": comment, "source": url}
+        else:
+            return {}
     elif "http" in link.get('href'):
         content = {"title": link.text, "link": link.get('href'), "source": url}
     else:
         content = {"title" : link.text, "link" : url + link.get('href'), "source": url}
     return content
 
-def crawler(sources, words):
-    total_links = []
-    for url in sources:
+def crawler(sources, words):                                                        
+    total_links = []                                                                 
+    for url in sources:                                                             
+        page_links = []
         soup = get_soup(url)
         page_links = get_page_links(url, soup, words)
         total_links = total_links + page_links
@@ -63,11 +72,12 @@ def sendmail(fromaddr, toaddrlist, messagelist, password, subject = "3D printing
     print(problems)
     server.quit()
 
-fromaddr = "sending email address"
-pas = "email password"
-toaddr = ["list of emails"]
-sites_to_monitor = ["http://URLS.com"]
-words_to_look_for = ["search words"]
+fromaddr = "thre3dnews@gmail.com"
+toaddr = ["kenneth@thre3d.com", "eric@thre3d.com", "the.ronin.poet@gmail.com", "fabian.castro10@gmail.com"]
+pas = "remotezhongphonecarpet"
+sites_to_monitor = ["http://www.9gag.com", "http://www.reddit.com", "http://www.reddit.com/new", "https://news.ycombinator.com/", "http://www.reddit.com/rising" ]
+words_to_look_for = ["3d print", "3dprint", "3d printed", "3dprinted", "3d printer", "3dprinter", "3d printing", "3dprinting", "3dprints", "3d prints", "3d printable", "3dprintable"]
+
 
 try:
     has_seen_list = pickle.load( open( "has_seen_list.p", "rb" ))
@@ -75,8 +85,9 @@ except (IOError, EOFError):
     has_seen_list = []
 
 count = 0 
+
 while True:
-    print("This is count %d." % count)
+    print("This is count %d. At %s" % (count, datetime.datetime.now().time()))
     this_pass_list = []
     msg = []
     crawler_dic_list = crawler(sites_to_monitor, words_to_look_for)
@@ -96,5 +107,5 @@ while True:
         pickle.dump( has_seen_list, open("has_seen_list.p", "w"))
     else:
         pass
-    time.sleep(60)
+    time.sleep(1)
     count += 1
