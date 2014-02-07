@@ -42,9 +42,9 @@ def grab_link(url, link):
         content = {"title" : link.text, "link" : url + link.get('href'), "source": url}
     return content
 
-def crawler(sources, words):                                                        
-    total_links = []                                                                 
-    for url in sources:                                                             
+def crawler(sources, words):
+    total_links = []
+    for url in sources:
         page_links = []
         soup = get_soup(url)
         page_links = get_page_links(url, soup, words)
@@ -72,12 +72,40 @@ def sendmail(fromaddr, toaddrlist, messagelist, password, subject = "3D printing
     print(problems)
     server.quit()
 
-fromaddr = ""
-toaddr = []
-pas = ""
-sites_to_monitor = []
-words_to_look_for = []
+def set_values():
+    try:
+        config_dic = pickle.load(open("config_dic.p", "rb"))
+    except (IOError, EOFError):
+        """
+        You can set the address you want to send the notifications from, the
+        password that corresponds to that address, the addresses you want to send
+        links to, the sites you want to monitor, and the words you want to look 
+        for manually using this method.
 
+        If you want to change a setting simply delete the config_dic.p file
+        in this directory and change the values below.  A new config_dic.p file
+        will be generated with the updated values.
+        """
+        fromaddr = "SET ADDRESS HERE"
+        pas = "SET ADDRESS PASS HERE"
+        toaddr = ["SET RECIEVING ADDRESSES HERE"]
+        sites_to_monitor = ["SET SITES TO MONITOR HERE"]
+        words_to_look_for = ["SET WORDS TO LOOK FOR HERE"]
+        config_dic = {"fromaddr": fromaddr, "toaddr": toaddr, "pas": pas, "sites_to_monitor": sites_to_monitor, "words_to_look_for": words_to_look_for}
+    finally:
+        return config_dic
+
+
+config_dic = set_values()
+toaddr = config_dic["toaddr"]
+pas = config_dic["pas"]
+sites_to_monitor = config_dic["sites_to_monitor"]
+fromaddr = config_dic["fromaddr"]
+words_to_look_for = config_dic["words_to_look_for"]
+
+config_dic = {"fromaddr": fromaddr, "toaddr": toaddr, "pas": pas, "sites_to_monitor": sites_to_monitor, "words_to_look_for": words_to_look_for}
+
+pickle.dump(config_dic, open("config_dic.p", "w"))
 
 try:
     has_seen_list = pickle.load( open( "has_seen_list.p", "rb" ))
