@@ -72,11 +72,11 @@ def sendmail(fromaddr, toaddrlist, messagelist, password, subject = "3D printing
     print(problems)
     server.quit()
 
-fromaddr = "thre3dnews@gmail.com"
-toaddr = ["kenneth@thre3d.com", "eric@thre3d.com", "the.ronin.poet@gmail.com", "fabian.castro10@gmail.com"]
-pas = "remotezhongphonecarpet"
-sites_to_monitor = ["http://www.9gag.com", "http://www.reddit.com", "http://www.reddit.com/new", "https://news.ycombinator.com/", "http://www.reddit.com/rising" ]
-words_to_look_for = ["3d print", "3dprint", "3d printed", "3dprinted", "3d printer", "3dprinter", "3d printing", "3dprinting", "3dprints", "3d prints", "3d printable", "3dprintable"]
+fromaddr = ""
+toaddr = []
+pas = ""
+sites_to_monitor = []
+words_to_look_for = []
 
 
 try:
@@ -85,7 +85,6 @@ except (IOError, EOFError):
     has_seen_list = []
 
 count = 0 
-
 while True:
     print("This is count %d. At %s" % (count, datetime.datetime.now().time()))
     this_pass_list = []
