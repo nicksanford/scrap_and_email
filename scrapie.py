@@ -111,7 +111,9 @@ config_dic = {"fromaddr": fromaddr, "toaddr": toaddr, "pas": pas, "sites_to_moni
 json.dump(config_dic, open("config_dic.json", "w"))
 
 try:
-    has_seen_list = pickle.load( open( "has_seen_list.p", "rb" ))
+#    has_seen_list = pickle.load( open( "has_seen_list.p", "rb" ))
+#   Remove after testing
+    has_seen_list = []
 except (IOError, EOFError):
     has_seen_list = []
 
@@ -133,7 +135,7 @@ while True:
             this_pass_list.append(dic['link'])
     if len(this_pass_list):
         has_seen_list += this_pass_list
-        sendmail(fromaddr, toaddr, msg, pas)
+    #    sendmail(fromaddr, toaddr, msg, pas)
         pickle.dump( has_seen_list, open("has_seen_list.p", "w"))
     else:
         pass
