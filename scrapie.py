@@ -1,4 +1,5 @@
 from bs4 import BeautifulSoup
+import json
 import time
 import datetime
 import requests
@@ -74,7 +75,7 @@ def sendmail(fromaddr, toaddrlist, messagelist, password, subject = "3D printing
 
 def set_values():
     try:
-        config_dic = pickle.load(open("config_dic.p", "rb"))
+        config_dic = json.load(open("config_dic.json", "rb"))
     except (IOError, EOFError):
         """
         You can set the address you want to send the notifications from, the
@@ -83,8 +84,10 @@ def set_values():
         for manually using this method.
 
         If you want to change a setting simply delete the config_dic.p file
-        in this directory and change the values below.  A new config_dic.p file
-        will be generated with the updated values.
+        in this directory and change the values below.  A new config_dic.json 
+        file will be generated with the updated values.
+
+        You can also just modify the json file itself.
         """
         fromaddr = "SET ADDRESS HERE"
         pas = "SET ADDRESS PASS HERE"
@@ -105,7 +108,7 @@ words_to_look_for = config_dic["words_to_look_for"]
 
 config_dic = {"fromaddr": fromaddr, "toaddr": toaddr, "pas": pas, "sites_to_monitor": sites_to_monitor, "words_to_look_for": words_to_look_for}
 
-pickle.dump(config_dic, open("config_dic.p", "w"))
+json.dump(config_dic, open("config_dic.json", "w"))
 
 try:
     has_seen_list = pickle.load( open( "has_seen_list.p", "rb" ))
