@@ -6,7 +6,6 @@ import requests
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 import smtplib
-import pickle
 
 def get_soup(url):
     r = requests.get(url)
@@ -14,19 +13,13 @@ def get_soup(url):
     return BeautifulSoup(data)
 
 def get_page_links(url, soup, words):
-    page_links = []
-    for link in soup.find_all('a'):
-        #print(link.text)
-        for word in words:
-            if  word in link.text.lower():
-                link_dic = grab_link(url, link)
-                if link_dic:
-                    page_links.append(link_dic) 
-                    break
-                else:
-                    pass
-            else:
-                pass
+    print "getting page: %s" % url
+    lower_case_links = [(link, link.text.lower()) for link in soup.find_all('a')]
+    print "got the links"
+    search_matches = [match[0] for match in lower_case_links for word in words if word in match[1]]
+    print "got the matches"
+    page_links = [grab_link(url, search_match) for search_match in search_matches if grab_link(url, search_match)]
+    print "got page links"
     return page_links
 
 def grab_link(url, link):
@@ -111,8 +104,8 @@ config_dic = {"fromaddr": fromaddr, "toaddr": toaddr, "pas": pas, "sites_to_moni
 json.dump(config_dic, open("config_dic.json", "w"))
 
 try:
-#    has_seen_list = pickle.load( open( "has_seen_list.p", "rb" ))
-#   Remove after testing
+    has_seen_list = json.load( open( "has_seen_list.json", "rb" ))
+#   REMOVE AFTER TESTING
     has_seen_list = []
 except (IOError, EOFError):
     has_seen_list = []
@@ -135,8 +128,9 @@ while True:
             this_pass_list.append(dic['link'])
     if len(this_pass_list):
         has_seen_list += this_pass_list
+    #   REMOVE AFTER TESTING
     #    sendmail(fromaddr, toaddr, msg, pas)
-        pickle.dump( has_seen_list, open("has_seen_list.p", "w"))
+        json.dump( has_seen_list, open("has_seen_list.json", "w"))
     else:
         pass
     time.sleep(1)
