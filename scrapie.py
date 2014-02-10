@@ -6,9 +6,16 @@ import requests
 from email.MIMEMultipart import MIMEMultipart
 from email.MIMEText import MIMEText
 import smtplib
+import pickle
 
 def get_soup(url):
-    r = requests.get(url)
+    try:
+        r = requests.get(url)
+    except requests.exceptions.RequestException as e:
+        print e
+        print "We caught a connection error/request exception.\nNobody panic."
+        time.sleep(15)
+        r = requests.get(url)
     data = r.text
     return BeautifulSoup(data)
 
@@ -104,7 +111,7 @@ config_dic = {"fromaddr": fromaddr, "toaddr": toaddr, "pas": pas, "sites_to_moni
 json.dump(config_dic, open("config_dic.json", "w"))
 
 try:
-    has_seen_list = json.load( open( "has_seen_list.json", "rb" ))
+    has_seen_list = pickle.load(open("has_seen_list.p", "rb"))
 #   REMOVE AFTER TESTING
     has_seen_list = []
 except (IOError, EOFError):
@@ -113,9 +120,23 @@ except (IOError, EOFError):
 count = 0 
 while True:
     print("This is count %d. At %s" % (count, datetime.datetime.now().time()))
-    this_pass_list = []
-    msg = []
-    crawler_dic_list = crawler(sites_to_monitor, words_to_look_for)
+    msg = [dic for dic in crawler(sites_to_monitor,
+        words_to_look_for) if dic['link'] not in has_seen_list]
+    this_pass_list = [dic['link'] for dic in msg]
+    if len(msg):
+        has_seen_list += this_pass_list
+        for m in msg:
+            print "Source: " + m['source']
+            print "Title: " + m['title']
+            print "Link: " + m['link']
+    #   REMOVE AFTER TESTING
+    #    sendmail(fromaddr, toaddr, msg, pas)
+        pickle.dump(has_seen_list, open("has_seen_list.p", "w"))
+    else:
+        pass
+    time.sleep(1)
+    count += 1
+    """
     for dic in crawler_dic_list:
         if dic['link'] in has_seen_list:
             pass
@@ -135,3 +156,4 @@ while True:
         pass
     time.sleep(1)
     count += 1
+    """
