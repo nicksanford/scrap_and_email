@@ -138,24 +138,3 @@ while True:
         pass
     time.sleep(1)
     count += 1
-    """
-    for dic in crawler_dic_list:
-        if dic['link'] in has_seen_list:
-            pass
-        else:
-            print "=============="
-            msg.append(dic)
-            print(dic['source'])
-            print(dic['title'])
-            print(dic['link'])
-            this_pass_list.append(dic['link'])
-    if len(this_pass_list):
-        has_seen_list += this_pass_list
-    #   REMOVE AFTER TESTING
-    #    sendmail(fromaddr, toaddr, msg, pas)
-        json.dump( has_seen_list, open("has_seen_list.json", "w"))
-    else:
-        pass
-    time.sleep(1)
-    count += 1
-    """
