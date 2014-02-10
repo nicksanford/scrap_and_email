@@ -25,8 +25,10 @@ def get_page_links(url, soup, words):
     print "got the links"
     search_matches = [match[0] for match in lower_case_links for word in words if word in match[1]]
     print "got the matches"
-    page_links = [grab_link(url, search_match) for search_match in search_matches if grab_link(url, search_match)]
+    page_links_with_duplicates = [grab_link(url, search_match) for search_match in search_matches if grab_link(url, search_match)]
     print "got page links"
+    page_links = [dict(tupleized) for tupleized in set(tuple(link.items()) for link in page_links_with_duplicates)]
+    print "removed duplicates"
     return page_links
 
 def grab_link(url, link):
@@ -130,7 +132,7 @@ while True:
             print "Title: " + m['title']
             print "Link: " + m['link']
     #   REMOVE AFTER TESTING
-    #    sendmail(fromaddr, toaddr, msg, pas)
+        sendmail(fromaddr, toaddr, msg, pas)
         pickle.dump(has_seen_list, open("has_seen_list.p", "w"))
     else:
         pass
